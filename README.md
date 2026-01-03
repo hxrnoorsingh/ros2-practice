@@ -34,7 +34,7 @@ graph TD
     C -->|RobotState.msg| E(Explainability Publisher)
     D -->|Uncertainty.msg| E
     E -->|String Explanation| F[User / Observer]
-    C -->|ROS Topic| G[Gazebo "Thought Sphere"]
+    C -->|ROS Topic| G[Gazebo Thought Sphere]
     D -->|ROS Topic| G
 ```
 
