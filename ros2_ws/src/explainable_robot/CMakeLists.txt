@@ -29,11 +29,12 @@ install(PROGRAMS
   explainable_robot/task_state_manager.py
   explainable_robot/uncertainty_estimator.py
   explainable_robot/explainability_publisher.py
+  explainable_robot/fault_injector.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
-# Install launch files
-install(DIRECTORY launch
+# Install launch and urdf files
+install(DIRECTORY launch urdf
   DESTINATION share/${PROJECT_NAME}
 )
 

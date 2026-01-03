@@ -27,23 +27,49 @@ class ExplainabilityPublisher(Node):
         self.current_uncertainty = msg.value
 
     def sensor_callback(self, msg):
-        if msg.status != 'OK':
-            if msg.sensor_name not in self.sensor_issues:
-                self.sensor_issues.append(msg.sensor_name)
-        else:
-            if msg.sensor_name in self.sensor_issues:
-                self.sensor_issues.remove(msg.sensor_name)
+        # Store detailed status
+        found = False
+        for issue in self.sensor_issues:
+            if issue['name'] == msg.sensor_name:
+                issue['status'] = msg.status
+                issue['confidence'] = msg.confidence
+                found = True
+                break
+        if not found:
+            self.sensor_issues.append({
+                'name': msg.sensor_name,
+                'status': msg.status,
+                'confidence': msg.confidence
+            })
 
     def timer_callback(self):
-        explanation = f"I am currently {self.current_state}. "
+        status_map = {
+            "IDLE": "I am standing still, waiting for instructions.",
+            "OBSERVING": "I am scanning the area for pedestrians and obstacles.",
+            "PROCESSING": "I am analyzing the path forward.",
+            "MOVING": "I am proceeding to my destination.",
+            "WAITING": "I am paused due to temporary uncertainty.",
+            "ERROR": "I have stopped because of a system malfunction.",
+            "SUCCESS": "I have successfully reached my goal."
+        }
         
-        if self.current_uncertainty > 0.5:
-            explanation += f"I am feeling quite uncertain (level: {self.current_uncertainty:.2f}). "
+        base_explanation = status_map.get(self.current_state, f"I am currently {self.current_state}.")
+        explanation = f"{base_explanation} "
+        
+        issues = [i for i in self.sensor_issues if i['status'] != 'OK']
+        if issues:
+            detail = []
+            for i in issues:
+                if i['status'] == 'FAIL':
+                    detail.append(f"TOTAL FAILURE of {i['name']}")
+                else:
+                    detail.append(f"DEGRADED performance in {i['name']} (Confidence: {i['confidence']:.2f})")
+            explanation += f"CAUTION: I detect {', '.join(detail)}. "
         else:
-            explanation += f"I am confident in my actions. "
-            
-        if self.sensor_issues:
-            explanation += f"Issues detected with: {', '.join(self.sensor_issues)}."
+            if self.current_uncertainty > 0.5:
+                explanation += f"I am proceeding with caution because I feel uncertain (level: {self.current_uncertainty:.2f}). "
+            else:
+                explanation += "Everything looks clear."
             
         msg = String()
         msg.data = explanation

@@ -36,21 +36,16 @@ def generate_launch_description():
     # Path to world file
     # Note: We assume the user copied worlds to src/worlds
     world_path = os.path.join(
-        os.path.expanduser('~'),
-        'ros2_ws', 'src', 'worlds', 'public_space.world'
+        os.getcwd(), 'src', 'worlds', 'public_space.world'
     )
     
-    # Gazebo Launch (Ignition Fortress)
-    # We add environment variables to fix WSL graphics and plugin paths
+    # Gazebo Launch
     gazebo = ExecuteProcess(
         cmd=['ign', 'gazebo', '-r', world_path],
         output='screen',
         additional_env={
             'IGN_GAZEBO_SYSTEM_PLUGIN_PATH': os.path.join(os.getcwd(), 'install', 'explainable_gazebo_plugins', 'lib'),
             'IGN_GAZEBO_RESOURCE_PATH': os.path.join(os.getcwd(), 'src', 'worlds'),
-            # WSL2/G Overrides (Uncomment if running in WSL)
-            # 'QT_X11_NO_MITSHM': '1',
-            # 'LIBGL_ALWAYS_SOFTWARE': '1',
         }
     )
 
