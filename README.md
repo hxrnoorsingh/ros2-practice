@@ -50,7 +50,7 @@ graph TD
 1. **Clone the repository**:
    ```bash
    cd ~/ros2_ws/src
-   git clone https://github.com/hxrnoorsingh/ros2-practice.git
+   git clone https://github.com/ThryLox/ros2-practice.git
    ```
 
 2. **Build the workspace**:
